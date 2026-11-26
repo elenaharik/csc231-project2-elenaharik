@@ -68,6 +68,17 @@ public class PlayerHealth : MonoBehaviour
         StartCoroutine(HurtBlink(true));
     }
 
+    // instant death (water, bottomless pits)
+    public void Kill()
+    {
+        if (isDead)
+        {
+            return;
+        }
+        health = 0;
+        Die();
+    }
+
     IEnumerator HurtBlink(bool flashRed)
     {
         isInvincible = true;

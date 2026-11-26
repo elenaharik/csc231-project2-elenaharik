@@ -14,7 +14,7 @@ public class MushroomAI : MonoBehaviour
     public float edgeCheckDistance = 0.6f; // how far in front it looks for an edge or wall
     public float groundCheckDepth = 1.5f;  // how far down it looks for ground
     [Tooltip("Tick this if the mushroom picture faces right.")]
-    public bool artFacesRight = true;
+    public bool artFacesRight = false;
 
     [Header("Chase and Attack")]
     public float chaseRange = 5f;
