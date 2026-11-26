@@ -6,7 +6,7 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour
 {
     public int maxHealth = 3;
-    public float knockbackForce = 4f;
+    public float knockbackForce = 1.5f;
     public float hurtTime = 0.3f;        // enemy stops moving for this long after a hit
     public float destroyDelay = 1.5f;    // time for the death animation before it disappears
 

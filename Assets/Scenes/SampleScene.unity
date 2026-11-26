@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 277073104}
   - component: {fileID: 277073110}
   - component: {fileID: 277073109}
+  - component: {fileID: 277073111}
   m_Layer: 0
   m_Name: player
   m_TagString: Untagged
@@ -340,6 +341,27 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &277073111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277073103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25edc9bfb30bb0b448093204fbacd7aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSword
+  attackPoint: {fileID: 955860069}
+  attackRange: 0.6
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  damage: 1
+  attackDuration: 0.4
+  hitDelay: 0.15
+  cooldown: 0.45
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
