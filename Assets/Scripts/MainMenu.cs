@@ -20,6 +20,5 @@ public class MainMenu : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
-        Debug.Log("Quit (only works in the real build, not in the editor)");
     }
 }

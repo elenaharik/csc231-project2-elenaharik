@@ -66,6 +66,7 @@ public class EnemyHealth : MonoBehaviour
     {
         isDead = true;
         PlayAnimation("Die");
+        Effects.Dust(transform.position, 8, 0.3f, 1.5f, 1.2f); // poof
 
         // stop it from hurting the player or blocking her
         foreach (Collider2D col in GetComponents<Collider2D>())

@@ -37,10 +37,13 @@ public class MushroomAI : MonoBehaviour
     private bool hasHit;
     private float attackTimer;
     private float cooldownTimer;
+    private float dustTimer;
+    private Collider2D body;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        body = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
         health = GetComponent<EnemyHealth>();
 
@@ -140,6 +143,15 @@ public class MushroomAI : MonoBehaviour
         if (currentSpeed > 0)
         {
             ChangeState("Run");
+
+            // little dust behind its feet while walking
+            dustTimer -= Time.deltaTime;
+            if (dustTimer <= 0 && body != null)
+            {
+                dustTimer = currentSpeed > walkSpeed ? 0.15f : 0.3f; // more dust when chasing
+                Vector2 feet = new Vector2(transform.position.x - direction * 0.3f, body.bounds.min.y);
+                Effects.Dust(feet, 1, 0.05f, 0.5f, 0.8f);
+            }
         }
         else
         {

@@ -121,6 +121,13 @@ public class FlyingMonsterAI : MonoBehaviour
                     state = State.Land;
                     timer = 0;
                     ChangeState("SmashEnd");
+
+                    // big cloud of dust where it slams into the ground
+                    if (hitGround)
+                    {
+                        Effects.Dust(position + Vector2.down * groundDistance, 12, 0.6f, 2.2f, 1.3f);
+                        AudioManager.Play(Sound.Land);
+                    }
                 }
                 break;
 

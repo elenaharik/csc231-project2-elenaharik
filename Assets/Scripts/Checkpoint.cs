@@ -43,6 +43,5 @@ public class Checkpoint : MonoBehaviour
             anim.enabled = true;
         }
 
-        Debug.Log("Checkpoint reached!");
     }
 }

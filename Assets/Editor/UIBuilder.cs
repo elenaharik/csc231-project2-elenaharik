@@ -151,6 +151,189 @@ public static class UIBuilder
     }
 
     // =====================================================================
+    // MAIN MENU LAYERS
+    // =====================================================================
+
+    // Splits the main menu into layers so the leaves can fly between them:
+    //   back:  background picture + dark see-through layer
+    //   middle: falling leaves and wind (world sprites)
+    //   front: title and buttons
+    [MenuItem("Tools/Main Menu: Leaves In Front Of Background")]
+    static void MenuLayers()
+    {
+        MainMenu menu = Object.FindFirstObjectByType<MainMenu>(FindObjectsInactive.Include);
+        if (menu == null)
+        {
+            EditorUtility.DisplayDialog("Main Menu", "Open the MainMenu scene first.", "OK");
+            return;
+        }
+
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            EditorUtility.DisplayDialog("Main Menu", "The MainMenu scene needs a Main Camera.", "OK");
+            return;
+        }
+
+        // 2D camera like in the level
+        Undo.RecordObject(cam, "Menu layers");
+        cam.orthographic = true;
+        cam.orthographicSize = 5.4f;
+        cam.transform.position = new Vector3(0, 0, -10);
+        if (cam.GetComponent<ForestAmbience>() == null)
+        {
+            Undo.AddComponent<ForestAmbience>(cam.gameObject);
+        }
+
+        // back canvas: drawn by the camera, behind everything
+        GameObject backCanvas = GameObject.Find("MenuBackgroundCanvas");
+        if (backCanvas == null)
+        {
+            backCanvas = MakeCanvas("MenuBackgroundCanvas");
+        }
+        Canvas back = backCanvas.GetComponent<Canvas>();
+        back.renderMode = RenderMode.ScreenSpaceCamera;
+        back.worldCamera = cam;
+        back.planeDistance = 20;
+        back.sortingOrder = -100;
+
+        // move the background picture to the back canvas (it may already be there)
+        Transform background = backCanvas.transform.Find("Background");
+        if (background == null)
+        {
+            background = menu.transform.Find("Background");
+        }
+        if (background != null)
+        {
+            Undo.SetTransformParent(background, backCanvas.transform, "Menu layers");
+            background.SetAsFirstSibling();
+
+            // fill the whole screen again (moving it between canvases messes up its size)
+            Undo.RecordObject(background, "Menu layers");
+            Stretch(background.gameObject);
+            background.localScale = Vector3.one;
+            background.localPosition = Vector3.zero;
+            background.localRotation = Quaternion.identity;
+        }
+
+        // dark see-through layer over the trees
+        if (backCanvas.transform.Find("DarkOverlay") == null)
+        {
+            GameObject overlay = MakeUI("DarkOverlay", backCanvas.transform);
+            Stretch(overlay);
+            Image image = overlay.AddComponent<Image>();
+            image.color = new Color(0.05f, 0.05f, 0.08f, 0.45f);
+            image.raycastTarget = false;
+            overlay.transform.SetAsLastSibling();
+        }
+
+        EditorSceneManager.MarkSceneDirty(menu.gameObject.scene);
+        EditorUtility.DisplayDialog("Main Menu", "Done! Leaves now fall in front of the trees and behind the buttons.\nPress Ctrl+S.\n\nTo make the dark layer lighter or darker: select DarkOverlay and change the Image color's alpha (A).", "OK");
+    }
+
+    // Moves the dark see-through layer in front of the decorations, clouds and leaves,
+    // but still behind the title and buttons.
+    [MenuItem("Tools/Main Menu: Dark Layer In Front Of Decorations")]
+    static void DarkLayerInFront()
+    {
+        MainMenu menu = Object.FindFirstObjectByType<MainMenu>(FindObjectsInactive.Include);
+        GameObject backCanvas = GameObject.Find("MenuBackgroundCanvas");
+        if (menu == null)
+        {
+            EditorUtility.DisplayDialog("Main Menu", "Open the MainMenu scene first.", "OK");
+            return;
+        }
+
+        // find the dark layer (on the back canvas, or already on the front one)
+        Transform overlay = menu.transform.Find("DarkOverlay");
+        if (overlay == null && backCanvas != null)
+        {
+            overlay = backCanvas.transform.Find("DarkOverlay");
+        }
+        if (overlay == null)
+        {
+            // none yet: make one
+            GameObject go = MakeUI("DarkOverlay", menu.transform);
+            Undo.RegisterCreatedObjectUndo(go, "Dark layer");
+            Image image = go.AddComponent<Image>();
+            image.color = new Color(0.05f, 0.05f, 0.08f, 0.45f);
+            image.raycastTarget = false;
+            overlay = go.transform;
+        }
+
+        // the front canvas draws on top of the whole world (decorations, clouds, leaves)
+        Undo.SetTransformParent(overlay, menu.transform, "Dark layer");
+        Undo.RecordObject(overlay, "Dark layer");
+        Stretch(overlay.gameObject);
+        overlay.localScale = Vector3.one;
+        overlay.localPosition = Vector3.zero;
+        overlay.localRotation = Quaternion.identity;
+        overlay.SetAsFirstSibling(); // first child = drawn first = behind the title and buttons
+
+        EditorSceneManager.MarkSceneDirty(menu.gameObject.scene);
+        EditorUtility.DisplayDialog("Main Menu", "The dark layer is now in front of everything except the title and buttons.\nPress Ctrl+S.", "OK");
+    }
+
+    // =====================================================================
+    // BUTTON COLORS
+    // =====================================================================
+
+    [MenuItem("Tools/Button Color/Moss Green")]
+    static void ColorMoss()
+    {
+        RecolorButtons(new Color(0.2f, 0.33f, 0.2f), new Color(1f, 0.95f, 0.82f));
+    }
+
+    [MenuItem("Tools/Button Color/Wood Brown")]
+    static void ColorWood()
+    {
+        RecolorButtons(new Color(0.36f, 0.23f, 0.13f), new Color(1f, 0.9f, 0.7f));
+    }
+
+    [MenuItem("Tools/Button Color/Night Slate")]
+    static void ColorSlate()
+    {
+        RecolorButtons(new Color(0.17f, 0.2f, 0.27f), new Color(1f, 0.85f, 0.5f));
+    }
+
+    // colors every button in the open scene (also the hidden pause / win / game over ones)
+    static void RecolorButtons(Color buttonColor, Color textColor)
+    {
+        Button[] buttons = Object.FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Button button in buttons)
+        {
+            Image image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                Undo.RecordObject(image, "Button color");
+                image.color = buttonColor;
+            }
+            foreach (TMP_Text text in button.GetComponentsInChildren<TMP_Text>(true))
+            {
+                Undo.RecordObject(text, "Button color");
+                text.color = textColor;
+            }
+        }
+
+        // the volume slider bar uses the text color
+        foreach (Slider slider in Object.FindObjectsByType<Slider>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (slider.fillRect != null)
+            {
+                Image fill = slider.fillRect.GetComponent<Image>();
+                Undo.RecordObject(fill, "Button color");
+                fill.color = textColor;
+            }
+        }
+
+        if (buttons.Length > 0)
+        {
+            EditorSceneManager.MarkSceneDirty(buttons[0].gameObject.scene);
+        }
+        Debug.Log("Recolored " + buttons.Length + " buttons. Press Ctrl+S to keep it.");
+    }
+
+    // =====================================================================
     // AUDIO
     // =====================================================================
 

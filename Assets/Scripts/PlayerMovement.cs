@@ -35,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
     private float jumpBufferCounter;
     private float knockbackTimer; // while > 0 she is pushed back and can't steer
     private float airTime;        // how long she has been in the air (for the landing sound)
+    private float runDustTimer;   // time until the next little dust puff while running
 
     [HideInInspector]
     public bool canMove = true; // PlayerHealth turns this off when she dies
@@ -100,8 +101,18 @@ public class PlayerMovement : MonoBehaviour
             if (airTime > 0.15f)
             {
                 AudioManager.Play(Sound.Land);
+                Effects.Dust(groundCheck.position, 6, 0.3f, 1.3f);
             }
             airTime = 0;
+
+            // small puffs behind her feet while running
+            runDustTimer -= Time.deltaTime;
+            if (moveInput != 0 && runDustTimer <= 0)
+            {
+                runDustTimer = 0.15f;
+                Vector2 behind = (Vector2)groundCheck.position - new Vector2(moveInput * 0.2f, 0);
+                Effects.Dust(behind, 1, 0.05f, 0.6f, 0.8f);
+            }
         }
         else
         {
@@ -195,6 +206,12 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         jumpBufferCounter = 0;
         AudioManager.Play(Sound.Jump);
+
+        // little puff when jumping off the ground (not for the double jump)
+        if (isGrounded)
+        {
+            Effects.Dust(groundCheck.position, 3, 0.2f, 0.8f);
+        }
     }
 
     void Flip()

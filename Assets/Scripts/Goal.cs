@@ -19,7 +19,6 @@ public class Goal : MonoBehaviour
 
         if (GameManager.instance.GetHerbs() < herbsNeeded)
         {
-            Debug.Log("You need " + herbsNeeded + " herbs to go through the portal!");
             return;
         }
 

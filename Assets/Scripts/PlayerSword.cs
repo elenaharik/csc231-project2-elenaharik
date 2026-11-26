@@ -48,12 +48,18 @@ public class PlayerSword : MonoBehaviour
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
 
+        // the sword blade glints at the end of the swing
+        Effects.Glint(attackPoint.position, 0.8f);
+
         foreach (Collider2D hit in hits)
         {
             EnemyHealth enemy = hit.GetComponentInParent<EnemyHealth>();
             if (enemy != null)
             {
                 enemy.TakeDamage(damage, transform.position);
+
+                // a bigger sparkle where the sword hit the enemy
+                Effects.Glint(hit.ClosestPoint(attackPoint.position), 1.3f);
             }
         }
     }
