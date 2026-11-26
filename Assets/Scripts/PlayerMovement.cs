@@ -33,6 +33,10 @@ public class PlayerMovement : MonoBehaviour
     private int extraJumpsLeft;
     private float coyoteCounter;
     private float jumpBufferCounter;
+    private float knockbackTimer; // while > 0 she is pushed back and can't steer
+
+    [HideInInspector]
+    public bool canMove = true; // PlayerHealth turns this off when she dies
 
     void Start()
     {
@@ -67,6 +71,18 @@ public class PlayerMovement : MonoBehaviour
         bool jumpReleased = Keyboard.current.spaceKey.wasReleasedThisFrame
                          || Keyboard.current.wKey.wasReleasedThisFrame
                          || Keyboard.current.upArrowKey.wasReleasedThisFrame;
+
+        // no control while dead or being knocked back
+        if (knockbackTimer > 0)
+        {
+            knockbackTimer -= Time.deltaTime;
+        }
+        if (!canMove || knockbackTimer > 0)
+        {
+            moveInput = 0;
+            jumpPressed = false;
+            jumpReleased = false;
+        }
 
         // ----- ground check -----
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
@@ -136,8 +152,21 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        // don't overwrite the knockback push
+        if (knockbackTimer > 0)
+        {
+            return;
+        }
+
         // physics movement goes in FixedUpdate
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+    }
+
+    // PlayerHealth calls this when she gets hit
+    public void Knockback(Vector2 force, float time)
+    {
+        rb.linearVelocity = force;
+        knockbackTimer = time;
     }
 
     void Jump()

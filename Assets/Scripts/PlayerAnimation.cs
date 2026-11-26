@@ -85,4 +85,11 @@ public class PlayerAnimation : MonoBehaviour
         currentState = state;
         actionTimer = duration;
     }
+
+    // ends any action right away (used when she respawns)
+    public void StopAction()
+    {
+        actionTimer = 0;
+        currentState = "";
+    }
 }
