@@ -103,6 +103,8 @@ public static class UIBuilder
             new Vector2(0, 1), new Vector2(400, -60), new Vector2(400, 70), TextAlignmentOptions.Left);
         hud.livesText = MakeText(canvas, "LivesText", "x3", 48,
             new Vector2(0, 1), new Vector2(400, -130), new Vector2(400, 70), TextAlignmentOptions.Left);
+        AddBoxBehind(hud.herbText);
+        AddBoxBehind(hud.livesText);
 
         // ----- pause panel -----
         PauseMenu pauseMenu = canvasObject.AddComponent<PauseMenu>();
@@ -145,6 +147,62 @@ public static class UIBuilder
         EditorSceneManager.MarkSceneDirty(canvasObject.scene);
         Selection.activeGameObject = canvasObject;
         EditorUtility.DisplayDialog("Build Level UI", "Done! Press Ctrl+S to save the scene.\n\nTo edit a hidden panel, tick it on at the top of the Inspector, then tick it off again.", "OK");
+    }
+
+    // adds dark boxes behind the herb and lives text of the UI that is already in the scene
+    // (does not touch anything else)
+    [MenuItem("Tools/Add Dark Boxes Behind HUD Text")]
+    static void AddHudBoxes()
+    {
+        HUD hud = Object.FindFirstObjectByType<HUD>();
+        if (hud == null)
+        {
+            EditorUtility.DisplayDialog("HUD boxes", "No HUD found. Open your level scene first.", "OK");
+            return;
+        }
+
+        int added = 0;
+        if (hud.herbText != null && AddBoxBehind(hud.herbText))
+        {
+            added++;
+        }
+        if (hud.livesText != null && AddBoxBehind(hud.livesText))
+        {
+            added++;
+        }
+
+        EditorSceneManager.MarkSceneDirty(hud.gameObject.scene);
+        EditorUtility.DisplayDialog("HUD boxes", "Added " + added + " dark boxes. Press Ctrl+S to save.\nTo change how dark they are, select a box and change the Image color's alpha (A).", "OK");
+    }
+
+    // a dark box with the same position as the text, drawn just behind it
+    static bool AddBoxBehind(TMP_Text text)
+    {
+        Transform parent = text.transform.parent;
+        string boxName = text.name + "Box";
+        if (parent.Find(boxName) != null)
+        {
+            return false; // already has one
+        }
+
+        GameObject box = MakeUI(boxName, parent);
+        Undo.RegisterCreatedObjectUndo(box, "Add HUD box");
+
+        RectTransform textRect = text.rectTransform;
+        RectTransform boxRect = box.GetComponent<RectTransform>();
+        boxRect.anchorMin = textRect.anchorMin;
+        boxRect.anchorMax = textRect.anchorMax;
+        boxRect.pivot = textRect.pivot;
+        boxRect.anchoredPosition = textRect.anchoredPosition + new Vector2(-15f, 5f);
+        boxRect.sizeDelta = new Vector2(320f, textRect.sizeDelta.y + 10f);
+
+        Image image = box.AddComponent<Image>();
+        image.color = new Color(0f, 0f, 0f, 0.6f);
+        image.raycastTarget = false;
+
+        // put the box right before the text so the text is drawn on top
+        box.transform.SetSiblingIndex(text.transform.GetSiblingIndex());
+        return true;
     }
 
     // =====================================================================
