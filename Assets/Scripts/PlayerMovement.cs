@@ -53,6 +53,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        // no control while paused or on the win/game over screen
+        if (Time.timeScale == 0f)
+        {
+            return;
+        }
+
         // ----- read keyboard -----
         moveInput = 0;
         if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)

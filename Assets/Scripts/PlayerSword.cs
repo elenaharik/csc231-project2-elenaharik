@@ -24,6 +24,12 @@ public class PlayerSword : MonoBehaviour
 
     void Update()
     {
+        // no attacking while paused or on the win/game over screen
+        if (Time.timeScale == 0f)
+        {
+            return;
+        }
+
         cooldownTimer -= Time.deltaTime;
 
         bool attackPressed = Keyboard.current.jKey.wasPressedThisFrame
@@ -40,7 +46,6 @@ public class PlayerSword : MonoBehaviour
     void DealDamage()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
-        Debug.Log("Sword hit " + hits.Length + " enemies");
 
         foreach (Collider2D hit in hits)
         {

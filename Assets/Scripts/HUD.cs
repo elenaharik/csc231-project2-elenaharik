@@ -21,7 +21,7 @@ public class HUD : MonoBehaviour
 
         if (herbText != null && GameManager.instance != null)
         {
-            herbText.text = GameManager.instance.GetHerbs() + " / " + GameManager.instance.GetTotalHerbs();
+            herbText.text = "Herbs " + GameManager.instance.GetHerbs() + " / " + GameManager.instance.GetTotalHerbs();
         }
 
         if (livesText != null && player != null)
