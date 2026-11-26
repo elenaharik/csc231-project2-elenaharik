@@ -10,6 +10,9 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce = 12f;
     public int extraJumps = 1; // 1 = double jump
 
+    [Tooltip("Tick this if her picture faces right. Untick if it faces left.")]
+    public bool artFacesRight = false;
+
     [Header("Gravity")]
     public float normalGravity = 3f;
     public float fallGravity = 5f; // falls faster than she rises, feels less floaty
@@ -35,6 +38,13 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = normalGravity;
+
+        // her art faces left, so flip her once at the start to face right
+        facingRight = artFacesRight;
+        if (!facingRight)
+        {
+            Flip();
+        }
     }
 
     void Update()
