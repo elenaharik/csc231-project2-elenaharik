@@ -104,6 +104,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b22ed93558cd52e408f6fa6fa5dde049, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Herb
-  floatHeight: 0.15
-  floatSpeed: 3
+  floatHeight: 0
+  floatSpeed: 0
   pickupEffect: {fileID: 0}

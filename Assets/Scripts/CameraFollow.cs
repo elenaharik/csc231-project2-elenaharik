@@ -3,12 +3,20 @@ using UnityEngine;
 // Put this on the Main Camera.
 // The camera smoothly follows the player, looks a bit ahead of where she is running,
 // and can stay inside level limits. It can also shake (used later for effects).
+//
+// Up and down: the camera does NOT move for normal jumps (that feels shaky).
+// It moves when she lands on a higher or lower platform, or falls far.
 public class CameraFollow : MonoBehaviour
 {
     public Transform target;                 // the player
-    public Vector3 offset = new Vector3(0, 1f, -10f);
-    public float smoothTime = 0.15f;         // smaller = follows faster
+    public float smoothTime = 0.15f;         // left/right: smaller = follows faster
+    public float smoothTimeY = 0.3f;         // up/down: a bit slower, feels calmer
     public float lookAhead = 1.5f;           // looks ahead in the direction she runs
+
+    [Tooltip("How high the camera is above her. Bigger = more ground under her feet... smaller = more sky.")]
+    public float groundSpace = 3f;
+    [Tooltip("If she goes this high above the platform she stood on, the camera follows her up.")]
+    public float followUpHeight = 4f;
 
     [Header("Level Limits")]
     public bool useLimits = false;
@@ -18,33 +26,33 @@ public class CameraFollow : MonoBehaviour
     public float maxY = 20f;
 
     [Header("Fit To Background")]
-    [Tooltip("Drag the tallest background layer here. The camera zooms so the background fills the screen from top to bottom, and stays at that height.")]
+    [Tooltip("Drag the tallest background layer here. The camera zooms so the background fills the screen from top to bottom.")]
     public SpriteRenderer fitToBackground;
 
     public static CameraFollow instance;     // so other scripts can call Shake()
 
     private Vector3 velocity;
+    private float velocityY;
     private float currentLookAhead;
     private Rigidbody2D targetRb;
+    private PlayerMovement targetMovement;
+    private float groundY;                   // height of the last platform she stood on
+    private bool firstFrame = true;
     private float shakeTimer;
     private float shakeStrength;
-    private bool lockHeight;
-    private float lockedY;
 
     void Awake()
     {
         instance = this;
 
-        // zoom and place the camera to match the background exactly
-        // (done in Awake so the background layers see the final camera height)
+        // zoom so the background fills the screen,
+        // and start centered on the background so the layers line up
+        // (done in Awake so the background layers see this camera height)
         if (fitToBackground != null)
         {
             Bounds bg = fitToBackground.bounds;
             GetComponent<Camera>().orthographicSize = bg.size.y / 2f;
-
-            lockHeight = true;
-            lockedY = bg.center.y;
-            transform.position = new Vector3(transform.position.x, lockedY, transform.position.z);
+            transform.position = new Vector3(transform.position.x, bg.center.y, -10f);
         }
     }
 
@@ -53,12 +61,11 @@ public class CameraFollow : MonoBehaviour
         if (target != null)
         {
             targetRb = target.GetComponent<Rigidbody2D>();
-            Vector3 start = target.position + offset; // start on the player
-            if (lockHeight)
-            {
-                start.y = lockedY;
-            }
-            transform.position = start;
+            targetMovement = target.GetComponent<PlayerMovement>();
+            groundY = target.position.y;
+
+            // only move left/right here, up/down is set on the first frame
+            transform.position = new Vector3(target.position.x, transform.position.y, -10f);
         }
     }
 
@@ -69,7 +76,22 @@ public class CameraFollow : MonoBehaviour
             return;
         }
 
-        // look ahead in the direction she is moving
+        // ----- remember the height of the platform she is on -----
+        bool grounded = targetMovement != null && targetMovement.IsGrounded();
+        if (grounded)
+        {
+            groundY = target.position.y;
+        }
+        else if (target.position.y < groundY)
+        {
+            groundY = target.position.y;                     // falling down: follow her
+        }
+        else if (target.position.y > groundY + followUpHeight)
+        {
+            groundY = target.position.y - followUpHeight;    // very high: follow her up
+        }
+
+        // ----- look ahead in the direction she is moving -----
         float wantedLookAhead = 0;
         if (targetRb != null && Mathf.Abs(targetRb.linearVelocity.x) > 0.1f)
         {
@@ -77,21 +99,28 @@ public class CameraFollow : MonoBehaviour
         }
         currentLookAhead = Mathf.Lerp(currentLookAhead, wantedLookAhead, 2f * Time.deltaTime);
 
-        // smooth follow
-        Vector3 wantedPosition = target.position + offset + new Vector3(currentLookAhead, 0, 0);
-        Vector3 newPosition = Vector3.SmoothDamp(transform.position, wantedPosition, ref velocity, smoothTime);
+        // ----- where the camera wants to be -----
+        float wantedX = target.position.x + currentLookAhead;
+        float wantedY = groundY + groundSpace;
+
+        Vector3 newPosition = transform.position;
+        if (firstFrame)
+        {
+            // jump straight there at the start, no sliding
+            newPosition = new Vector3(wantedX, wantedY, -10f);
+            firstFrame = false;
+        }
+        else
+        {
+            newPosition.x = Mathf.SmoothDamp(transform.position.x, wantedX, ref velocity.x, smoothTime);
+            newPosition.y = Mathf.SmoothDamp(transform.position.y, wantedY, ref velocityY, smoothTimeY);
+        }
 
         // stay inside the level
         if (useLimits)
         {
             newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
             newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
-        }
-
-        // the camera stays at the background's height
-        if (lockHeight)
-        {
-            newPosition.y = lockedY;
         }
 
         transform.position = newPosition;
