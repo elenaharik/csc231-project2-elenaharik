@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 5;
+    public int lives = 3;                  // lose them all = Game Over
     public float invincibleTime = 1f;      // safe time after being hit
     public float knockbackForce = 6f;
     public float knockbackTime = 0.2f;
@@ -116,7 +117,21 @@ public class PlayerHealth : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
 
         playerAnim.PlayAction("Death", respawnDelay + 1f);
-        Invoke("Respawn", respawnDelay);
+
+        lives--;
+        if (lives > 0)
+        {
+            Invoke("Respawn", respawnDelay);
+        }
+        else
+        {
+            Invoke("ShowGameOver", respawnDelay);
+        }
+    }
+
+    void ShowGameOver()
+    {
+        GameManager.instance.GameOver();
     }
 
     void Respawn()
@@ -149,6 +164,11 @@ public class PlayerHealth : MonoBehaviour
     public int GetMaxHealth()
     {
         return maxHealth;
+    }
+
+    public int GetLives()
+    {
+        return lives;
     }
 
     public bool IsDead()
