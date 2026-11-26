@@ -8,6 +8,7 @@ public class PlayerAnimation : MonoBehaviour
     private Rigidbody2D rb;
     private PlayerMovement movement;
     private string currentState;
+    private float actionTimer; // while > 0, an action (like Attack) is playing
 
     void Start()
     {
@@ -18,6 +19,13 @@ public class PlayerAnimation : MonoBehaviour
 
     void Update()
     {
+        // let the action animation finish before going back to normal
+        if (actionTimer > 0)
+        {
+            actionTimer -= Time.deltaTime;
+            return;
+        }
+
         string newState;
 
         if (!movement.IsGrounded())
@@ -62,5 +70,19 @@ public class PlayerAnimation : MonoBehaviour
 
         anim.Play(newState);
         currentState = newState;
+    }
+
+    // plays an animation once (Attack, Hurt, Death) and holds it for "duration" seconds
+    public void PlayAction(string state, float duration)
+    {
+        if (!anim.HasState(0, Animator.StringToHash(state)))
+        {
+            Debug.LogWarning("Animator has no state called " + state);
+            return;
+        }
+
+        anim.Play(state, 0, 0f); // 0f = start from the first frame
+        currentState = state;
+        actionTimer = duration;
     }
 }
