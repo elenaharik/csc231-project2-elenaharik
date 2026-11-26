@@ -39,6 +39,7 @@ public class PlayerSword : MonoBehaviour
         {
             cooldownTimer = cooldown;
             playerAnim.PlayAction("Attack", attackDuration);
+            AudioManager.Play(Sound.Swing);
             Invoke("DealDamage", hitDelay);
         }
     }

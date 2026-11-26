@@ -62,6 +62,8 @@ public class PlayerHealth : MonoBehaviour
             return;
         }
 
+        AudioManager.Play(Sound.Hurt);
+
         // push her away from whatever hit her
         float direction = Mathf.Sign(transform.position.x - attackerPosition.x);
         movement.Knockback(new Vector2(direction * knockbackForce, knockbackForce * 0.6f), knockbackTime);
@@ -109,6 +111,7 @@ public class PlayerHealth : MonoBehaviour
     {
         isDead = true;
         StopAllCoroutines();
+        AudioManager.Play(Sound.Death);
         sr.enabled = true;
         sr.color = Color.white;
 

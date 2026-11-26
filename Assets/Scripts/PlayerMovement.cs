@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     private float coyoteCounter;
     private float jumpBufferCounter;
     private float knockbackTimer; // while > 0 she is pushed back and can't steer
+    private float airTime;        // how long she has been in the air (for the landing sound)
 
     [HideInInspector]
     public bool canMove = true; // PlayerHealth turns this off when she dies
@@ -92,6 +93,20 @@ public class PlayerMovement : MonoBehaviour
 
         // ----- ground check -----
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        // landing: she was in the air for a moment and now touches the ground
+        if (isGrounded)
+        {
+            if (airTime > 0.15f)
+            {
+                AudioManager.Play(Sound.Land);
+            }
+            airTime = 0;
+        }
+        else
+        {
+            airTime += Time.deltaTime;
+        }
 
         if (isGrounded && rb.linearVelocity.y <= 0.01f)
         {
@@ -179,6 +194,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         jumpBufferCounter = 0;
+        AudioManager.Play(Sound.Jump);
     }
 
     void Flip()

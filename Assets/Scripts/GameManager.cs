@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1f; // make sure the game is running (after a restart)
+        AudioManager.StartMusic();
 
         if (winScreen != null)
         {
@@ -56,6 +57,9 @@ public class GameManager : MonoBehaviour
             return;
         }
         levelDone = true;
+
+        AudioManager.StopMusic();
+        AudioManager.Play(Sound.Win);
 
         if (winHerbsText != null)
         {

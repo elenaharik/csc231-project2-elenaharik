@@ -198,7 +198,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -347,7 +347,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 10
@@ -375,6 +375,61 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &279095437
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 279095439}
+  - component: {fileID: 279095438}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &279095438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279095437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 605b97b3e5d994a49aebd9b8a303a369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  jump: {fileID: 8300000, guid: efa996968e85daa4db49e6683acb27e4, type: 3}
+  land: {fileID: 8300000, guid: 3f534ac18f2c8294f92b8eaaa8f74b77, type: 3}
+  collect: {fileID: 8300000, guid: e3d94c963ffa60d44ba9d9ffcca3656a, type: 3}
+  hurt: {fileID: 8300000, guid: 0cc35c8914f69f34ca0438a64a0b1d69, type: 3}
+  swing: {fileID: 8300000, guid: 79ce248076a2053419f954edc9b68100, type: 3}
+  enemyHit: {fileID: 8300000, guid: e19a7bd2f1126fc49a8f445d39d8341e, type: 3}
+  win: {fileID: 8300000, guid: 91dcfefdd4435224e96a37fe31e5edf0, type: 3}
+  checkpoint: {fileID: 8300000, guid: acbfdaae54cc30b4d9a1b4438484450b, type: 3}
+  death: {fileID: 8300000, guid: 422f3905c0e8367458e3e41214742024, type: 3}
+  music: {fileID: 8300000, guid: 82ec0173d2d050240a0f0148c1b25feb, type: 3}
+  musicVolume: 0.4
+--- !u!4 &279095439
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279095437}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &341208096
 GameObject:
   m_ObjectHideFlags: 0
@@ -587,7 +642,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -857,7 +912,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1168,3 +1223,4 @@ SceneRoots:
   - {fileID: 1375251888}
   - {fileID: 1986586671}
   - {fileID: 228801706}
+  - {fileID: 279095439}

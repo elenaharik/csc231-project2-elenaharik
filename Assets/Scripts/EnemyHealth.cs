@@ -42,6 +42,7 @@ public class EnemyHealth : MonoBehaviour
 
         health -= damage;
         hurtTimer = hurtTime;
+        AudioManager.Play(Sound.EnemyHit);
         StartCoroutine(FlashRed());
 
         // push the enemy away from the player

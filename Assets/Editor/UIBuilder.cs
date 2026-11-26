@@ -47,14 +47,14 @@ public static class UIBuilder
             Undo.DestroyObjectImmediate(old);
         }
 
-        PlayerHealth player = Object.FindFirstObjectByType<PlayerHealth>();
+        PlayerHealth player = Object.FindFirstObjectByType<PlayerHealth>(FindObjectsInactive.Include);
         if (player == null)
         {
             EditorUtility.DisplayDialog("Build Level UI", "Open your level scene first (the one with the player).", "OK");
             return;
         }
 
-        GameManager gameManager = Object.FindFirstObjectByType<GameManager>();
+        GameManager gameManager = Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
         if (gameManager == null)
         {
             GameObject gmObject = new GameObject("GameManager");
@@ -115,6 +115,7 @@ public static class UIBuilder
         UnityEventTools.AddPersistentListener(MakeButton(pausePanel.transform, "Restart", new Vector2(0, -70)).onClick, new UnityAction(pauseMenu.Restart));
         UnityEventTools.AddPersistentListener(MakeButton(pausePanel.transform, "Quit", new Vector2(0, -200)).onClick, new UnityAction(pauseMenu.QuitToMenu));
         pauseMenu.pausePanel = pausePanel;
+        AddVolumeSlider(pausePanel.transform);
 
         // ----- win panel -----
         GameObject winPanel = MakePanel(canvas, "WinPanel");
@@ -149,12 +150,102 @@ public static class UIBuilder
         EditorUtility.DisplayDialog("Build Level UI", "Done! Press Ctrl+S to save the scene.\n\nTo edit a hidden panel, tick it on at the top of the Inspector, then tick it off again.", "OK");
     }
 
+    // =====================================================================
+    // AUDIO
+    // =====================================================================
+
+    const string AudioFolder = "Assets/Audio/";
+
+    // adds an AudioManager with all the sounds from Assets/Audio to the open scene
+    [MenuItem("Tools/Setup Audio In This Scene")]
+    static void SetupAudio()
+    {
+        AudioManager manager = Object.FindFirstObjectByType<AudioManager>(FindObjectsInactive.Include);
+        if (manager == null)
+        {
+            GameObject go = new GameObject("AudioManager");
+            Undo.RegisterCreatedObjectUndo(go, "Setup Audio");
+            manager = go.AddComponent<AudioManager>();
+        }
+
+        Undo.RecordObject(manager, "Setup Audio");
+        manager.jump = Clip("Jump");
+        manager.land = Clip("Land");
+        manager.collect = Clip("Collect");
+        manager.hurt = Clip("Hurt");
+        manager.swing = Clip("Swing");
+        manager.enemyHit = Clip("EnemyHit");
+        manager.win = Clip("Win");
+        manager.checkpoint = Clip("Checkpoint");
+        manager.death = Clip("Death");
+        manager.music = Clip("ForestMusic");
+        EditorUtility.SetDirty(manager);
+
+        EditorSceneManager.MarkSceneDirty(manager.gameObject.scene);
+        EditorUtility.DisplayDialog("Setup Audio", "AudioManager is ready in this scene with all the sounds.\nPress Ctrl+S.\n\nDo this in BOTH the MainMenu and the level scene.", "OK");
+    }
+
+    static AudioClip Clip(string name)
+    {
+        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(AudioFolder + name + ".wav");
+        if (clip == null)
+        {
+            Debug.LogWarning("Setup Audio: missing " + AudioFolder + name + ".wav");
+        }
+        return clip;
+    }
+
+    // adds a volume slider to the pause panel that is already in the scene
+    [MenuItem("Tools/Add Volume Slider To Pause Menu")]
+    static void AddVolumeSliderMenu()
+    {
+        PauseMenu pause = Object.FindFirstObjectByType<PauseMenu>(FindObjectsInactive.Include);
+        if (pause == null || pause.pausePanel == null)
+        {
+            EditorUtility.DisplayDialog("Volume slider", "No pause menu found. Open your level scene first.", "OK");
+            return;
+        }
+        if (pause.pausePanel.transform.Find("VolumeSlider") != null)
+        {
+            EditorUtility.DisplayDialog("Volume slider", "The pause menu already has a volume slider.", "OK");
+            return;
+        }
+
+        AddVolumeSlider(pause.pausePanel.transform);
+        EditorSceneManager.MarkSceneDirty(pause.gameObject.scene);
+        EditorUtility.DisplayDialog("Volume slider", "Added a volume slider to the pause menu. Press Ctrl+S.", "OK");
+    }
+
+    static void AddVolumeSlider(Transform panel)
+    {
+        MakeText(panel, "VolumeLabel", "Volume   (M = mute)", 40,
+            new Vector2(0.5f, 0.5f), new Vector2(0, -300), new Vector2(600, 60), TextAlignmentOptions.Center);
+
+        GameObject sliderObject = DefaultControls.CreateSlider(new DefaultControls.Resources());
+        sliderObject.name = "VolumeSlider";
+        sliderObject.transform.SetParent(panel, false);
+        Undo.RegisterCreatedObjectUndo(sliderObject, "Add volume slider");
+        Place(sliderObject, new Vector2(0.5f, 0.5f), new Vector2(0, -370), new Vector2(500, 40));
+
+        // make the bar easy to see on the dark panel
+        Image background = sliderObject.transform.Find("Background").GetComponent<Image>();
+        background.color = new Color(1f, 1f, 1f, 0.25f);
+        Image fill = sliderObject.transform.Find("Fill Area/Fill").GetComponent<Image>();
+        fill.color = new Color(1f, 0.85f, 0.4f);
+        Image handle = sliderObject.transform.Find("Handle Slide Area/Handle").GetComponent<Image>();
+        handle.color = Color.white;
+
+        Slider slider = sliderObject.GetComponent<Slider>();
+        slider.value = 1f;
+        sliderObject.AddComponent<VolumeSlider>();
+    }
+
     // adds dark boxes behind the herb and lives text of the UI that is already in the scene
     // (does not touch anything else)
     [MenuItem("Tools/Add Dark Boxes Behind HUD Text")]
     static void AddHudBoxes()
     {
-        HUD hud = Object.FindFirstObjectByType<HUD>();
+        HUD hud = Object.FindFirstObjectByType<HUD>(FindObjectsInactive.Include);
         if (hud == null)
         {
             EditorUtility.DisplayDialog("HUD boxes", "No HUD found. Open your level scene first.", "OK");
@@ -304,7 +395,7 @@ public static class UIBuilder
 
     static void EnsureEventSystem()
     {
-        EventSystem eventSystem = Object.FindFirstObjectByType<EventSystem>();
+        EventSystem eventSystem = Object.FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include);
         if (eventSystem == null)
         {
             GameObject esObject = new GameObject("EventSystem");

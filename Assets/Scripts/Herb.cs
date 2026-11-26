@@ -110,6 +110,7 @@ public class Herb : MonoBehaviour
         }
 
         collected = true;
+        AudioManager.Play(Sound.Collect);
 
         if (GameManager.instance == null)
         {

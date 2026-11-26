@@ -33,6 +33,7 @@ public class Checkpoint : MonoBehaviour
         }
 
         isLit = true;
+        AudioManager.Play(Sound.Checkpoint);
         other.GetComponent<PlayerHealth>().SetRespawnPoint(transform.position + respawnOffset);
 
         // light the fire
